@@ -98,7 +98,7 @@ class MyID3Estimator:
         return entropy    
 
     def filterDataFrame(self, data, attr, value, root):
-        """
+        """ Filter data based on attr and value parameters
 
         Parameters
         ----------
