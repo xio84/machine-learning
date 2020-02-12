@@ -116,8 +116,8 @@ class MyID3Estimator:
         filteredData = data
 
         # Filter data dengan melakukan drop row
-        filteredData = filteredData.set_index(attr)
-        filteredData = filteredData.drop(value, axis=0)
+        # Hanya row dengan nilai 'value' pada atribut 'attr' saja yang tetap ada di dataframe
+        filteredData = filteredData[filteredData[attr] == value]
 
         return filteredData
 
