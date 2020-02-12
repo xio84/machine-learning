@@ -98,7 +98,28 @@ class MyID3Estimator:
         return entropy    
 
     def filterDataFrame(self, data, attr, value, root):
+        """ Filter data based on attr and value parameters
+
+        Parameters
+        ----------
+        data = dataframe yang ingin difilter
+        attr = Atribut filter
+        value = value dari attribute filter yang ingin
+                diaplikasikan ke dataframe
+
+        Returns
+        ----------
+        filteredData = data yang sudah difilter
+        """
+
+        # Inisialisasi dataframe temporer 'filteredData' dengan dataframe 'data'
         filteredData = data
+
+        # Filter data dengan melakukan drop row
+        # Hanya row dengan nilai 'value' pada atribut 'attr' saja yang tetap ada di dataframe
+        filteredData = filteredData[filteredData[attr] == value]
+
+        return filteredData
 
     def informationGain(self, dataset, attr, root):
         if root == none:
