@@ -1,6 +1,10 @@
 import pandas as pd
 import math
 
+pd.set_option('display.max_rows', 151)
+
+threshold_dict = dict()
+
 class Node:
     def __init__(self,
                 _parent = None, # A Node
@@ -145,7 +149,7 @@ class MyTree:
             # print(self.filterDataFrame(dataset, attr, value))
             gain = gain -(self.getValueInstance(dataset,attr,value)/instances) * (self.entropyData(self.filterDataFrame(dataset, attr, value))) 
         
-        print("gain" , gain)
+        # print("gain" , gain)
         return gain
 
     def partitionData(self, dataset, attr):
@@ -247,19 +251,32 @@ class MyTree:
         self.root._printTree(space = 0)
 
 def handleContinuousAttribute(data):
-    t = MyTree(_targetAttribute="target")
-    i = 0
+    target = data.columns[-1]
+    t = MyTree(_targetAttribute=target)
     for attr in t.getAttributesInData(data):
         if (isinstance(data.iloc[0][attr], float)):
+            threshold_dict[attr] = max(data[attr])
+            best_threshold = threshold_dict[attr]
+            best_information_gain = -1
             data = data.sort_values(by=[attr])
-            target_value = data.iloc[0]["target"]
+            target_value = data.iloc[0][target]
+            data_temp = data.copy()
             for index, row in data.iterrows():
-                if (row["target"] == target_value):
-                    data.at[index,attr] = i
+                if (row[target] == target_value):
+                    pass
                 else:
-                    target_value = row["target"]
-                    i += 1
-                    data.at[index,attr] = i
+                    threshold_temp = (data.iloc[index-1][attr] + data.iloc[index][attr]) / 2
+                    data_temp.loc[data_temp[attr] < threshold_temp, attr] = 0
+                    data_temp.loc[data_temp[attr] >= threshold_temp, attr] = 1
+                    information_gain_temp = t.informationGain(data_temp, attr)
+                    if (information_gain_temp > best_information_gain):
+                        best_information_gain = information_gain_temp
+                        best_threshold = threshold_temp
+            
+            threshold_dict[attr] = best_threshold
+            print("best_threshold: " + str(best_threshold))
+            data.loc[data[attr] < best_threshold , attr] = 0
+            data.loc[data[attr] >= best_threshold , attr] = 1
 
     return data
 
@@ -268,10 +285,9 @@ if __name__ == "__main__":
     data = pd.read_csv("iris.csv", header=None, names=['attr1', 'attr2', 'attr3', 'attr4', 'target'])
     data = handleContinuousAttribute(data)
 
-    data = data.sort_values(by=["attr1"])
-
     print(data)
-    
+    print(threshold_dict)
+    # t = MyTree(_targetAttribute="target")
     # t.buildTreeInit(trainingSet=data)
     # t.printTree()
 
